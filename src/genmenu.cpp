@@ -47,6 +47,7 @@ float player_verts[8][4] = {
   {  0.2f, -0.2f, -0.2f, 0.2f },
   { -0.2f, -0.2f, -0.2f, 0.2f }
 };
+
 // Vertices for a cube
 vector_t verts_in[8] = {
   {  0.2f,  0.2f,  0.2f, 0.2f },
@@ -143,6 +144,7 @@ vector_t ring_verts_in_list[5][8] = {
     { -0.2f, -0.2f, -0.2f, 0.2f }
   }
 };
+
 vector_t ring_verts_in[8] = {
   {  0.2f,  0.2f,  0.2f, 0.2f },
   { -0.2f,  0.2f,  0.2f, 0.2f },
@@ -169,7 +171,7 @@ pvr_ptr_t loadTexture(const char *texName)
 {
   const size_t HEADER_SIZE  = 32;
   const size_t TEXTURE_SIZE = 174768;
-  
+
   FILE *texFile = fopen(texName, "rb");
   pvr_ptr_t textureMemory = pvr_mem_malloc(TEXTURE_SIZE);
   char header[HEADER_SIZE];
@@ -184,7 +186,15 @@ pvr_ptr_t loadTexture(const char *texName)
 pvr_poly_hdr_t createTexHeader(pvr_ptr_t texture)
 {
   pvr_poly_cxt_t context;
-  pvr_poly_cxt_txr(&context, PVR_LIST_OP_POLY, PVR_TXRFMT_RGB565 | PVR_TXRFMT_TWIDDLED, 256, 256, texture, PVR_FILTER_NONE);
+  pvr_poly_cxt_txr(
+    &context,
+    PVR_LIST_OP_POLY,
+    PVR_TXRFMT_RGB565 | PVR_TXRFMT_TWIDDLED,
+    256,
+    256,
+    texture,
+    PVR_FILTER_NONE
+  );
 
   context.gen.culling = PVR_CULLING_CW;
   context.txr.mipmap  = PVR_MIPMAP_ENABLE;
@@ -220,7 +230,15 @@ float calculateDiffuseIntensity(vector_t light, vector_t point, vector_t normal)
 }
 
 // Send a lit vertex to the graphics hardware
-void submitVertex(vector_t light, vector_t lightVertex, vector_t vertex, vector_t normal, float u, float v, bool endOfStrip = false)
+void submitVertex(
+  vector_t light,
+  vector_t lightVertex,
+  vector_t vertex,
+  vector_t normal,
+  float u,
+  float v,
+  bool endOfStrip = false
+)
 {
   int flags = endOfStrip ? PVR_CMD_VERTEX_EOL : PVR_CMD_VERTEX;
 
@@ -240,7 +258,7 @@ void Initialize()
   pvr_init_defaults();
   plx_mat3d_init();
   snd_stream_init();
-//  mp3_init();
+  // mp3_init();
 
   for (int a = 0; a < 5; ++a)
     for (int b = 0; b < 8; ++b)
@@ -263,7 +281,7 @@ void Initialize()
 //  texMemory[5] = loadTexture("/rd/savidan.pvr");
 
 //  for (int i = 0; i < 6; ++i)
-    texHeaders[0] = createTexHeader(texMemory[0]);
+  texHeaders[0] = createTexHeader(texMemory[0]);
 
   // Set up the camera
   plx_mat3d_mode(PLX_MAT_PROJECTION);
@@ -277,30 +295,38 @@ void Initialize()
   point_t cameraTarget   = { 0.0f, 0.0f, 0.0f, 1.0f };
   vector_t cameraUp      = { 0.0f, 1.0f, 0.0f, 0.0f };
   plx_mat3d_lookat(&cameraPosition, &cameraTarget, &cameraUp);
-  
+
   // Play music with looping
 //  mp3_start("/rd/tucson.mp3", 1);
 }
 
 void handle_rings()
 {
-  for (int q = 0; q < 5; ++q) {
-    rings[q][2] = rings[q][2] + 0.1f;
+  for (int q = 0; q < 5; ++q)
+  {
+    rings[q][2] += 0.1f;
     for (int i = 0; i < 8; ++i) {
       ring_pool[q][i][2] = ring_verts[i][2] + rings[q][2];
     }
-    if (rings[q][2] > 3.0f) {
-        rings[q][0] = -6.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(6.0f))) + 3;
-        rings[q][1] = -4.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(4.0f))) + 2;
-        rings[q][2] = -60.0f;
-        for (int b = 0; b < 8; ++b) {
-          ring_pool[q][b][0] = ring_verts[b][0] + rings[q][0];
-          ring_pool[q][b][1] = ring_verts[b][1] + rings[q][1];
-          ring_pool[q][b][2] = ring_verts[b][2] - rings[q][2];
-        }
+    if (rings[q][2] > 3.0f)
+    {
+      rings[q][0] = -6.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(6.0f))) + 3;
+      rings[q][1] = -4.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(4.0f))) + 2;
+      rings[q][2] = -60.0f;
+      for (int b = 0; b < 8; ++b)
+      {
+        ring_pool[q][b][0] = ring_verts[b][0] + rings[q][0];
+        ring_pool[q][b][1] = ring_verts[b][1] + rings[q][1];
+        ring_pool[q][b][2] = ring_verts[b][2] - rings[q][2];
+      }
     }
     for (int i = 0; i < 8; ++i)
-      ring_verts_in_list[q][i] = { ring_pool[q][i][0], ring_pool[q][i][1], ring_pool[q][i][2], ring_pool[q][i][3]};
+      ring_verts_in_list[q][i] = {
+        ring_pool[q][i][0],
+        ring_pool[q][i][1],
+        ring_pool[q][i][2],
+        ring_pool[q][i][3]
+      };
   }
 }
 
@@ -314,26 +340,31 @@ void handle_input()
   if (controllerState->buttons & CONT_DPAD_UP && playerPosY < 2.0f) {
     playerPosY += 0.1f;
     for (int i = 0; i < 8; ++i)
-      player_verts[i][1] = player_verts[i][1] + 0.1f;
+      player_verts[i][1] += 0.1f;
   }
   if (controllerState->buttons & CONT_DPAD_DOWN && playerPosY > -2.0f) {
     playerPosY += -0.1f;
     for (int i = 0; i < 8; ++i)
-      player_verts[i][1] = player_verts[i][1] - 0.1f;
+      player_verts[i][1] -= 0.1f;
   }
   if (controllerState->buttons & CONT_DPAD_RIGHT && playerPosX < 3.0f) {
     playerPosX += 0.1f;
     for (int i = 0; i < 8; ++i)
-      player_verts[i][0] = player_verts[i][0] + 0.1f;
+      player_verts[i][0] += 0.1f;
   }
   if (controllerState->buttons & CONT_DPAD_LEFT && playerPosX > -3.0f) {
     playerPosX += -0.1f;
     for (int i = 0; i < 8; ++i)
-      player_verts[i][0] = player_verts[i][0] - 0.1f;
+      player_verts[i][0] -= 0.1f;
   }
 
   for (int i = 0; i < 8; ++i)
-    verts_in[i] = { player_verts[i][0], player_verts[i][1], player_verts[i][2], player_verts[i][3]};
+    verts_in[i] = {
+      player_verts[i][0],
+      player_verts[i][1],
+      player_verts[i][2],
+      player_verts[i][3]
+    };
 
 }
 
@@ -373,7 +404,7 @@ void cycle_background_color()
 void Update()
 {
   plx_mat3d_push();
-  
+
   cycle_background_color();
   // Set a background color
   pvr_set_bg_color(bgR, bgG, bgB);
@@ -385,10 +416,10 @@ void Update()
   // Transform light position
   vector_t light = lightPosition;
   mat_trans_single4(light.x, light.y, light.z, light.w);
-  
+
   // Update player position
   //plx_mat3d_translate(playerPosX, playerPosY, 0.0f);
-  
+
   handle_input();
   handle_rings();
   // Transform normals
@@ -412,7 +443,6 @@ void Update()
 
   vector_t transformedVerts[8];
   plx_mat_transform(verts_in, transformedVerts, 8, 4 * sizeof(float));
-  
 
   vector_t ringTransformedVerts[5][8];
   for (int i = 0; i < 5; ++i)
@@ -426,8 +456,8 @@ void Update()
   pvr_scene_begin();
   pvr_list_begin(PVR_LIST_OP_POLY);
 
-  //pvr_prim(&texHeaders[0], sizeof(pvr_poly_hdr_t));
-  pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
+  pvr_prim(&texHeaders[0], sizeof(pvr_poly_hdr_t));
+  //pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
   submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[0], 1.0f, 0.0f);
   submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[0], 0.0f, 0.0f);
   submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[0], 1.0f, 1.0f);
@@ -461,6 +491,7 @@ void Update()
 
   for (int i = 0; i < 5; ++i)
   {
+    pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
     submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], normals[0], 1.0f, 0.0f);
     submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], normals[0], 0.0f, 0.0f);
     submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], normals[0], 1.0f, 1.0f);
@@ -502,7 +533,7 @@ void Cleanup()
   // Clear the VMU screen
   maple_device_t *vmu = maple_enum_type(0, MAPLE_FUNC_LCD);
   vmu_draw_lcd(vmu, vmu_clear);
-  
+
   // Clean up the texture memory we allocated earlier
   pvr_mem_free(texMemory[5]);
   pvr_mem_free(texMemory[4]);
@@ -513,7 +544,7 @@ void Cleanup()
 
   // Stop playing music
 //  mp3_stop();
-  
+
   // Shut down libraries we used
 //  mp3_shutdown();
   snd_stream_shutdown();
