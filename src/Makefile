@@ -3,8 +3,8 @@
 # Copyright (C)2003 Dan Potter
 #   
 
-TARGET = genmenu.elf
-OBJS = genmenu.o
+TARGET = main.elf
+OBJS = main.o
 
 all: clean rm-elf $(TARGET)
 
@@ -17,7 +17,7 @@ rm-elf:
 	-rm -f $(TARGET) romdisk.*
 
 $(TARGET): $(OBJS) romdisk.o
-	kos-c++ -o $(TARGET) $(OBJS) romdisk.o -ltsunami -lparallax -lpng -ljpeg -lkmg -lz -lkosutils -lm -ltremor
+	kos-c++ -o $(TARGET) $(OBJS) romdisk.o -ltsunami -lparallax -lpng -ljpeg -lkmg -lz -lkosutils -lm
 
 romdisk.img:
 	$(KOS_GENROMFS) -f romdisk.img -d romdisk -v
