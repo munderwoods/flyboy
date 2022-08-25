@@ -1,3 +1,7 @@
+*.elf
+*.bin
+*.cdi
+
 # Prerequisites
 *.d
 
