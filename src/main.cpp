@@ -5,8 +5,12 @@
 #include <plx/prim.h>
 #include <stdlib.h>
 #include <tsu/font.h>
+#include <sstream>
+#include <string.h>
 
 #include "lrrsoft.h"
+
+using namespace std;
 
 // Initialize KOS
 KOS_INIT_FLAGS(INIT_DEFAULT);
@@ -38,6 +42,8 @@ float bgB = 0.00f;
 bool bgRUp = true;
 bool bgGUp = true;
 bool bgBUp = true;
+int score = 0;
+char * score_string = "score";
 
 float player_verts[8][4] = {
   {  0.2f,  0.2f,  0.2f, 0.2f },
@@ -299,7 +305,7 @@ void Initialize()
 
   // Play music with looping
 //  mp3_start("/rd/tucson.mp3", 1);
-  fnt = new Font("/rd/typewriter.txf");
+  fnt = new Font("/rd/axaxax.txf");
   fnt->setSize(24.0f);
 }
 
@@ -528,7 +534,18 @@ void Update()
 
   pvr_list_begin(PVR_LIST_TR_POLY);
 
-  fnt->draw(10.0f, 30.0f, 100.0f, "SCORE: 30");
+  score++;
+
+  const char *x = "Score: ";
+
+  stringstream strs;
+  strs << score;
+  string temp_str = strs.str();
+  char const* y = temp_str.c_str();
+
+  strcpy(score_string, x);
+  strcat(score_string, y);
+  fnt->draw(10.0f, 30.0f, 10.0f, score_string);
 
   pvr_list_finish();
   pvr_scene_finish();
