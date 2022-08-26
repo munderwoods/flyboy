@@ -4,6 +4,7 @@
 #include <plx/matrix.h>
 #include <plx/prim.h>
 #include <stdlib.h>
+#include <tsu/font.h>
 
 #include "lrrsoft.h"
 
@@ -522,6 +523,12 @@ void Update()
     submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], normals[5], 1.0f, 1.0f);
     submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], normals[5], 0.0f, 1.0f, true);
   }
+
+  pvr_list_begin(PVR_LIST_TR_POLY);
+  RefPtr<Font> fnt = new Font("/rd/typewriter.txf");
+
+  fnt->setSize(24.0f);
+  fnt->draw(10.0f, 30.0f, 100.0f, "SCORE: 30");
 
   pvr_list_finish();
   pvr_scene_finish();
