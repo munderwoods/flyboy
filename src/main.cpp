@@ -255,7 +255,6 @@ void Initialize()
   // Draw to the VMU
   maple_device_t *vmu = maple_enum_type(0, MAPLE_FUNC_LCD);
   vmu_draw_lcd(vmu, lrrsoft_logo);
-  fnt = new Font("/rd/typewriter.txf");
   // Initialize the graphics and sound libraries
   pvr_init_defaults();
   plx_mat3d_init();
@@ -300,6 +299,8 @@ void Initialize()
 
   // Play music with looping
 //  mp3_start("/rd/tucson.mp3", 1);
+  fnt = new Font("/rd/typewriter.txf");
+  fnt->setSize(24.0f);
 }
 
 void handle_rings()
@@ -527,7 +528,6 @@ void Update()
 
   pvr_list_begin(PVR_LIST_TR_POLY);
 
-  fnt->setSize(24.0f);
   fnt->draw(10.0f, 30.0f, 100.0f, "SCORE: 30");
 
   pvr_list_finish();
