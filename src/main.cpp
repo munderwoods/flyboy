@@ -15,6 +15,7 @@ KOS_INIT_FLAGS(INIT_DEFAULT);
 extern uint8 romdisk[];
 KOS_INIT_ROMDISK(romdisk);
 
+RefPtr<Font> fnt;
 // Global variables
 bool exitProgram = false;
 pvr_poly_hdr_t nontexturedHeader;
@@ -254,7 +255,7 @@ void Initialize()
   // Draw to the VMU
   maple_device_t *vmu = maple_enum_type(0, MAPLE_FUNC_LCD);
   vmu_draw_lcd(vmu, lrrsoft_logo);
-
+  fnt = new Font("/rd/typewriter.txf");
   // Initialize the graphics and sound libraries
   pvr_init_defaults();
   plx_mat3d_init();
@@ -525,7 +526,6 @@ void Update()
   }
 
   pvr_list_begin(PVR_LIST_TR_POLY);
-  RefPtr<Font> fnt = new Font("/rd/typewriter.txf");
 
   fnt->setSize(24.0f);
   fnt->draw(10.0f, 30.0f, 100.0f, "SCORE: 30");
