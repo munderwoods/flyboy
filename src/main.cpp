@@ -43,13 +43,8 @@ bool bgRUp = true;
 bool bgGUp = true;
 bool bgBUp = true;
 int score = 0;
-char *score_string = "Score: 0";
-char *player_y_string = "0";
-char *player_x_string = "0";
 float ring_0_y = 0;
 float ring_0_x = 0;
-char *ring_0_y_string = "0";
-char *ring_0_x_string = "0";
 
 float player_verts[8][4] = {
   {  0.2f,  0.2f,  0.2f, 0.2f },
@@ -323,30 +318,25 @@ void Initialize()
   fnt->setSize(24.0f);
 }
 
+char * concat_char(const char *first_char, const char *second_char)
+{
+  char *temp_str = "";
+  strcpy(temp_str, first_char);
+  strcat(temp_str, second_char);
+  return temp_str;
+}
 void display_debug()
 {
-  const char *player_y_label = "Player Y: ";
-  const char * playerPosY_char = int_to_char(playerPosY * 100);
-  strcpy(player_y_string, player_y_label);
-  strcat(player_y_string, playerPosY_char);
+  char *player_y_string = concat_char("Player Y: ", int_to_char(playerPosY * 100));
   fnt->draw(10.0f, 60.0f, 10.0f, player_y_string);
 
-  const char *player_x_label = "Player X: ";
-  const char * playerPosX_char = int_to_char(playerPosX * 100);
-  strcpy(player_x_string, player_x_label);
-  strcat(player_x_string, playerPosX_char);
+  char *player_x_string = concat_char("Player X: ", int_to_char(playerPosX * 100));
   fnt->draw(10.0f, 90.0f, 10.0f, player_x_string);
 
-  const char *ring_0_y_label = "Ring 0 Y: ";
-  const char * ring_0_y_char = int_to_char(ring_0_y * 100);
-  strcpy(ring_0_y_string, ring_0_y_label);
-  strcat(ring_0_y_string, ring_0_y_char);
+  char *ring_0_y_string = concat_char("Ring o Y: ", int_to_char(ring_0_y * 100));
   fnt->draw(10.0f, 120.0f, 10.0f, ring_0_y_string);
 
-  const char *ring_0_x_label = "Ring 0 X: ";
-  const char * ring_0_x_char = int_to_char(ring_0_x * 100);
-  strcpy(ring_0_x_string, ring_0_x_label);
-  strcat(ring_0_x_string, ring_0_x_char);
+  char *ring_0_x_string = concat_char("Ring o X: ", int_to_char(ring_0_x * 100));
   fnt->draw(10.0f, 150.0f, 10.0f, ring_0_x_string);
 }
 
@@ -586,10 +576,7 @@ void Update()
 
   pvr_list_begin(PVR_LIST_TR_POLY);
 
-  const char *score_label = "Score: ";
-  const char * score_char = int_to_char(score);
-  strcpy(score_string, score_label);
-  strcat(score_string, score_char);
+  char *score_string = concat_char("Score: ", int_to_char(score));
   fnt->draw(10.0f, 30.0f, 10.0f, score_string);
 
   display_debug();
