@@ -43,7 +43,13 @@ bool bgRUp = true;
 bool bgGUp = true;
 bool bgBUp = true;
 int score = 0;
-char * score_string = "score";
+char *score_string = "Score: 0";
+char *player_y_string = "0";
+char *player_x_string = "0";
+float ring_0_y = 0;
+float ring_0_x = 0;
+char *ring_0_y_string = "0";
+char *ring_0_x_string = "0";
 
 float player_verts[8][4] = {
   {  0.2f,  0.2f,  0.2f, 0.2f },
@@ -79,11 +85,11 @@ vector_t normals[6] = {
 };
 
 float rings[5][3] = {
-  { 5.0f, 5.0f, -50.0f },
-  { 5.0f, 5.0f, -40.0f },
-  { 5.0f, 5.0f, -30.0f },
-  { 5.0f, 5.0f, -20.0f },
-  { 5.0f, 5.0f, -10.0f }
+  { 0.0f, 0.0f, -50.0f },
+  { 0.0f, 0.0f, -40.0f },
+  { 0.0f, 0.0f, -30.0f },
+  { 0.0f, 0.0f, -20.0f },
+  { 0.0f, 0.0f, -10.0f }
 };
 
 float ring_verts[8][4] = {
@@ -174,6 +180,14 @@ vector_t ring_normals[6] = {
   {  0.0f, -1.0f,  0.0f, 0.0f }
 };
 
+const char * int_to_char(int i)
+{
+  stringstream strs;
+  strs << i;
+  string temp_str = strs.str();
+  char const* y = temp_str.c_str();
+  return y;
+}
 // Load a texture from the filesystem into video RAM
 pvr_ptr_t loadTexture(const char *texName)
 {
@@ -309,6 +323,33 @@ void Initialize()
   fnt->setSize(24.0f);
 }
 
+void display_debug()
+{
+  const char *player_y_label = "Player Y: ";
+  const char * playerPosY_char = int_to_char(playerPosY * 100);
+  strcpy(player_y_string, player_y_label);
+  strcat(player_y_string, playerPosY_char);
+  fnt->draw(10.0f, 60.0f, 10.0f, player_y_string);
+
+  const char *player_x_label = "Player X: ";
+  const char * playerPosX_char = int_to_char(playerPosX * 100);
+  strcpy(player_x_string, player_x_label);
+  strcat(player_x_string, playerPosX_char);
+  fnt->draw(10.0f, 90.0f, 10.0f, player_x_string);
+
+  const char *ring_0_y_label = "Ring 0 Y: ";
+  const char * ring_0_y_char = int_to_char(ring_0_y * 100);
+  strcpy(ring_0_y_string, ring_0_y_label);
+  strcat(ring_0_y_string, ring_0_y_char);
+  fnt->draw(10.0f, 120.0f, 10.0f, ring_0_y_string);
+
+  const char *ring_0_x_label = "Ring 0 X: ";
+  const char * ring_0_x_char = int_to_char(ring_0_x * 100);
+  strcpy(ring_0_x_string, ring_0_x_label);
+  strcat(ring_0_x_string, ring_0_x_char);
+  fnt->draw(10.0f, 150.0f, 10.0f, ring_0_x_string);
+}
+
 void handle_rings()
 {
   for (int q = 0; q < 5; ++q)
@@ -317,8 +358,19 @@ void handle_rings()
     for (int i = 0; i < 8; ++i) {
       ring_pool[q][i][2] = ring_verts[i][2] + rings[q][2];
     }
-    if (rings[q][2] > 3.0f)
+    if (rings[q][2] > 0.0f)
     {
+      ring_0_y = rings[q][1];
+      ring_0_x = rings[q][0];
+      if(
+        playerPosX < ring_0_x + 0.5f &&
+        playerPosX > ring_0_x - 0.5f &&
+        playerPosY < ring_0_y + 0.5f &&
+        playerPosY > ring_0_y - 0.5f
+      )
+      {
+        score++;
+      }
       rings[q][0] = -6.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(6.0f))) + 3;
       rings[q][1] = -4.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(4.0f))) + 2;
       rings[q][2] = -60.0f;
@@ -534,18 +586,13 @@ void Update()
 
   pvr_list_begin(PVR_LIST_TR_POLY);
 
-  score++;
-
-  const char *x = "Score: ";
-
-  stringstream strs;
-  strs << score;
-  string temp_str = strs.str();
-  char const* y = temp_str.c_str();
-
-  strcpy(score_string, x);
-  strcat(score_string, y);
+  const char *score_label = "Score: ";
+  const char * score_char = int_to_char(score);
+  strcpy(score_string, score_label);
+  strcat(score_string, score_char);
   fnt->draw(10.0f, 30.0f, 10.0f, score_string);
+
+  display_debug();
 
   pvr_list_finish();
   pvr_scene_finish();
