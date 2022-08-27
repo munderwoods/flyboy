@@ -314,8 +314,11 @@ void Initialize()
 
   // Play music with looping
 //  mp3_start("/rd/tucson.mp3", 1);
-  fnt = new Font("/rd/axaxax.txf");
-  fnt->setSize(24.0f);
+  fnt = new Font("/rd/pixel-font.txf");
+  fnt->setSize(25.0f);
+  fnt->setColor(1.0f, 1.0f, 1.0f);
+  fnt->setFilter(0);
+  //fnt->setColor(0.0f, 0.0f, 0.0f);
 }
 
 char * concat_char(const char *first_char, const char *second_char)
@@ -579,7 +582,7 @@ void Update()
   char *score_string = concat_char("Score: ", int_to_char(score));
   fnt->draw(10.0f, 30.0f, 10.0f, score_string);
 
-  display_debug();
+  //display_debug();
 
   pvr_list_finish();
   pvr_scene_finish();
