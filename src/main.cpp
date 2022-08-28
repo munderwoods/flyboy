@@ -5,8 +5,10 @@
 #include <plx/prim.h>
 #include <stdlib.h>
 #include <tsu/font.h>
+#include <tsu/texture.h>
 #include <sstream>
 #include <string.h>
+#include <plx/sprite.h>
 
 #include "lrrsoft.h"
 
@@ -20,6 +22,7 @@ extern uint8 romdisk[];
 KOS_INIT_ROMDISK(romdisk);
 
 RefPtr<Font> fnt;
+RefPtr<Texture> lial;
 // Global variables
 bool exitProgram = false;
 pvr_poly_hdr_t nontexturedHeader;
@@ -47,6 +50,7 @@ float ring_0_y = 0;
 float ring_0_x = 0;
 int inputMode = 0;
 bool displayDebug = false;
+bool displayLial = false;
 
 class Controller {
   public:
@@ -351,6 +355,8 @@ void Initialize()
   fnt->setColor(1.0f, 1.0f, 1.0f);
   fnt->setFilter(0);
   //fnt->setColor(0.0f, 0.0f, 0.0f);
+  //
+  lial = new Texture("/rd/lial.png", true);
 }
 
 char * concat_char(const char *first_char, const char *second_char)
@@ -442,6 +448,10 @@ void handle_input()
   if (controller.a != previousController.a && controller.a)
   {
     displayDebug = !displayDebug;
+  }
+  if (controller.b != previousController.b && controller.b)
+  {
+    displayLial = !displayLial;
   }
   if (inputMode == 0)
   {
@@ -686,6 +696,11 @@ void Update()
   char *score_string = concat_char("Score: ", int_to_char(score));
   fnt->draw(10.0f, 60.0f, 10.0f, score_string);
 
+  if (displayLial)
+  {
+    lial->sendHdr(PVR_LIST_TR_POLY);
+    plx_spr_inp(lial->getW(), lial->getH(), 550, 375, 20, 0xffffffff);
+  }
   if (displayDebug)
   {
     display_debug();
