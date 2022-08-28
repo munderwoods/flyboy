@@ -45,6 +45,38 @@ bool bgBUp = true;
 int score = 0;
 float ring_0_y = 0;
 float ring_0_x = 0;
+int inputMode = 0;
+bool displayDebug = false;
+
+class Controller {
+  public:
+    bool d_pad_up;
+    bool d_pad_down;
+    bool d_pad_right;
+    bool d_pad_left;
+    bool a;
+    bool b;
+    bool x;
+    bool y;
+    bool start;
+    bool lt;
+    bool rt;
+    int joyX;
+    int joyY;
+};
+
+Controller controller;
+
+float player_verts_default[8][4] = {
+  {  0.2f,  0.2f,  0.2f, 0.2f },
+  { -0.2f,  0.2f,  0.2f, 0.2f },
+  {  0.2f, -0.2f,  0.2f, 0.2f },
+  { -0.2f, -0.2f,  0.2f, 0.2f },
+  {  0.2f,  0.2f, -0.2f, 0.2f },
+  { -0.2f,  0.2f, -0.2f, 0.2f },
+  {  0.2f, -0.2f, -0.2f, 0.2f },
+  { -0.2f, -0.2f, -0.2f, 0.2f }
+};
 
 float player_verts[8][4] = {
   {  0.2f,  0.2f,  0.2f, 0.2f },
@@ -315,7 +347,7 @@ void Initialize()
   // Play music with looping
 //  mp3_start("/rd/tucson.mp3", 1);
   fnt = new Font("/rd/pixel-font.txf");
-  fnt->setSize(25.0f);
+  fnt->setSize(50.0f);
   fnt->setColor(1.0f, 1.0f, 1.0f);
   fnt->setFilter(0);
   //fnt->setColor(0.0f, 0.0f, 0.0f);
@@ -331,16 +363,19 @@ char * concat_char(const char *first_char, const char *second_char)
 void display_debug()
 {
   char *player_y_string = concat_char("Player Y: ", int_to_char(playerPosY * 100));
-  fnt->draw(10.0f, 60.0f, 10.0f, player_y_string);
+  fnt->draw(10.0f, 90.0f, 10.0f, player_y_string);
 
   char *player_x_string = concat_char("Player X: ", int_to_char(playerPosX * 100));
-  fnt->draw(10.0f, 90.0f, 10.0f, player_x_string);
+  fnt->draw(10.0f, 120.0f, 10.0f, player_x_string);
 
   char *ring_0_y_string = concat_char("Ring o Y: ", int_to_char(ring_0_y * 100));
-  fnt->draw(10.0f, 120.0f, 10.0f, ring_0_y_string);
+  fnt->draw(10.0f, 150.0f, 10.0f, ring_0_y_string);
 
   char *ring_0_x_string = concat_char("Ring o X: ", int_to_char(ring_0_x * 100));
-  fnt->draw(10.0f, 150.0f, 10.0f, ring_0_x_string);
+  fnt->draw(10.0f, 180.0f, 10.0f, ring_0_x_string);
+
+  char *joy_x_string = concat_char("Joy X: ", int_to_char(controller.joyX * 100));
+  fnt->draw(10.0f, 210.0f, 10.0f, joy_x_string);
 }
 
 void handle_rings()
@@ -386,30 +421,105 @@ void handle_rings()
 
 void handle_input()
 {
-  maple_device_t *controller = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
-  cont_state_t *controllerState = reinterpret_cast<cont_state_t*>(maple_dev_status(controller));
-  if (controllerState->buttons & CONT_START) {
-    exitProgram = true;
+  maple_device_t *mapleController = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
+  cont_state_t *mapleControllerState = reinterpret_cast<cont_state_t*>(maple_dev_status(mapleController));
+
+  Controller previousController = controller;
+  controller.d_pad_up = mapleControllerState->buttons & CONT_DPAD_UP;
+  controller.d_pad_down = mapleControllerState->buttons & CONT_DPAD_DOWN;
+  controller.d_pad_left = mapleControllerState->buttons & CONT_DPAD_LEFT;
+  controller.d_pad_right = mapleControllerState->buttons & CONT_DPAD_RIGHT;
+  controller.a = mapleControllerState->buttons & CONT_A;
+  controller.b = mapleControllerState->buttons & CONT_B;
+  controller.x = mapleControllerState->buttons & CONT_X;
+  controller.y = mapleControllerState->buttons & CONT_Y;
+  controller.lt = mapleControllerState->buttons & CONT_C;
+  controller.rt = mapleControllerState->buttons & CONT_D;
+  controller.start = mapleControllerState->buttons & CONT_START;
+  controller.joyX = mapleControllerState->joyx;
+  controller.joyY = mapleControllerState->joyy;
+
+  if (controller.a != previousController.a && controller.a)
+  {
+    displayDebug = !displayDebug;
   }
-  if (controllerState->buttons & CONT_DPAD_UP && playerPosY < 2.0f) {
-    playerPosY += 0.1f;
-    for (int i = 0; i < 8; ++i)
-      player_verts[i][1] += 0.1f;
-  }
-  if (controllerState->buttons & CONT_DPAD_DOWN && playerPosY > -2.0f) {
-    playerPosY += -0.1f;
-    for (int i = 0; i < 8; ++i)
-      player_verts[i][1] -= 0.1f;
-  }
-  if (controllerState->buttons & CONT_DPAD_RIGHT && playerPosX < 3.0f) {
-    playerPosX += 0.1f;
-    for (int i = 0; i < 8; ++i)
-      player_verts[i][0] += 0.1f;
-  }
-  if (controllerState->buttons & CONT_DPAD_LEFT && playerPosX > -3.0f) {
-    playerPosX += -0.1f;
-    for (int i = 0; i < 8; ++i)
-      player_verts[i][0] -= 0.1f;
+  if (inputMode == 0)
+  {
+    if (controller.start != previousController.start && controller.start) {
+      inputMode = 1;
+      playerPosY = 0.0f;
+      playerPosX = 0.0f;
+      for (int i = 0; i < 8; ++i)
+      {
+        player_verts[i][0] = player_verts_default[i][0];
+        player_verts[i][1] = player_verts_default[i][1];
+      }
+    }
+    if (controller.d_pad_up && playerPosY < 2.0f) {
+      playerPosY += 0.1f;
+      for (int i = 0; i < 8; ++i)
+        player_verts[i][1] += 0.1f;
+    }
+    if (controller.d_pad_down && playerPosY > -2.0f) {
+      playerPosY += -0.1f;
+      for (int i = 0; i < 8; ++i)
+        player_verts[i][1] -= 0.1f;
+    }
+    if (controller.d_pad_right && playerPosX < 3.0f) {
+      playerPosX += 0.1f;
+      for (int i = 0; i < 8; ++i)
+        player_verts[i][0] += 0.1f;
+    }
+    if (controller.d_pad_left && playerPosX > -3.0f) {
+      playerPosX += -0.1f;
+      for (int i = 0; i < 8; ++i)
+        player_verts[i][0] -= 0.1f;
+    }
+  } else
+  {
+    if (controller.start != previousController.start && controller.start) {
+      inputMode = 0;
+      playerPosY = 0.0f;
+      playerPosX = 0.0f;
+      for (int i = 0; i < 8; ++i)
+      {
+        player_verts[i][0] = player_verts_default[i][0];
+        player_verts[i][1] = player_verts_default[i][1];
+      }
+    }
+    if (mapleControllerState->joyx != 0)
+    {
+      controller.joyX = mapleControllerState->joyx / 40.0f;
+      if(controller.joyX > 3.0f)
+      {
+        playerPosX = 3.0f;
+      }
+      else if(controller.joyX < -3.0f)
+      {
+        playerPosX = -3.0f;
+      } else {
+        playerPosX = controller.joyX;
+      }
+      for (int i = 0; i < 8; ++i)
+        player_verts[i][0] = player_verts_default[i][0] + playerPosX;
+    }
+
+    if (mapleControllerState->joyy != 0)
+    {
+      controller.joyY = mapleControllerState->joyy / 40.0f;
+      if(controller.joyY > 2.0f)
+      {
+        playerPosY = 2.0f;
+      }
+      else if(controller.joyY < -2.0f)
+      {
+        playerPosY = -2.0f;
+      } else {
+        playerPosY = controller.joyY;
+      }
+      for (int i = 0; i < 8; ++i)
+        player_verts[i][1] = player_verts_default[i][1] - playerPosY;
+    }
   }
 
   for (int i = 0; i < 8; ++i)
@@ -580,9 +690,12 @@ void Update()
   pvr_list_begin(PVR_LIST_TR_POLY);
 
   char *score_string = concat_char("Score: ", int_to_char(score));
-  fnt->draw(10.0f, 30.0f, 10.0f, score_string);
+  fnt->draw(10.0f, 60.0f, 10.0f, score_string);
 
-  //display_debug();
+  if (displayDebug)
+  {
+    display_debug();
+  }
 
   pvr_list_finish();
   pvr_scene_finish();
