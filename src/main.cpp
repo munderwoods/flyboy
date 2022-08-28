@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string.h>
 #include <plx/sprite.h>
+#include <png/png.h>
 
 #include "lrrsoft.h"
 
@@ -239,18 +240,10 @@ pvr_ptr_t loadTexture(const char *texName)
 pvr_poly_hdr_t createTexHeader(pvr_ptr_t texture)
 {
   pvr_poly_cxt_t context;
-  pvr_poly_cxt_txr(
-    &context,
-    PVR_LIST_OP_POLY,
-    PVR_TXRFMT_RGB565 | PVR_TXRFMT_TWIDDLED,
-    256,
-    256,
-    texture,
-    PVR_FILTER_NONE
-  );
+  pvr_poly_cxt_txr(&context, PVR_LIST_OP_POLY, PVR_TXRFMT_RGB565, 256, 256, texture, PVR_FILTER_BILINEAR);
 
   context.gen.culling = PVR_CULLING_CW;
-  context.txr.mipmap  = PVR_MIPMAP_ENABLE;
+//  context.txr.mipmap  = PVR_MIPMAP_ENABLE; // use this for pvr texture
 
   pvr_poly_hdr_t header;
   pvr_poly_compile(&header, &context);
@@ -326,6 +319,8 @@ void Initialize()
 
   // Load all 6 textures
   texMemory[0] = loadTexture("/rd/dclogo.pvr");
+  texMemory[1] = pvr_mem_malloc(256 * 256 * 2);
+  png_to_texture("/rd/lial.png", texMemory[1], PNG_NO_ALPHA);
 //  texMemory[1] = loadTexture("/rd/lrrlogo.pvr");
 //  texMemory[2] = loadTexture("/rd/ihorner.pvr");
 //  texMemory[3] = loadTexture("/rd/gstar.pvr");
@@ -334,6 +329,7 @@ void Initialize()
 
 //  for (int i = 0; i < 6; ++i)
   texHeaders[0] = createTexHeader(texMemory[0]);
+  texHeaders[1] = createTexHeader(texMemory[1]);
 
   // Set up the camera
   plx_mat3d_mode(PLX_MAT_PROJECTION);
@@ -624,7 +620,7 @@ void Update()
   pvr_scene_begin();
   pvr_list_begin(PVR_LIST_OP_POLY);
 
-  pvr_prim(&texHeaders[0], sizeof(pvr_poly_hdr_t));
+  pvr_prim(&texHeaders[1], sizeof(pvr_poly_hdr_t));
   //pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
   submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[0], 1.0f, 0.0f);
   submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[0], 0.0f, 0.0f);
