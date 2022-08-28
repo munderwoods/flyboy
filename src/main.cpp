@@ -567,12 +567,11 @@ void cycle_background_color()
 
 void Update()
 {
-  plx_mat3d_push();
-
+  handle_input();
+  handle_rings();
   cycle_background_color();
-  // Set a background color
-  pvr_set_bg_color(bgR, bgG, bgB);
 
+  plx_mat3d_push();
   // Do lighting calculations
   plx_mat_identity();
   plx_mat3d_apply(PLX_MAT_MODELVIEW);
@@ -581,11 +580,6 @@ void Update()
   vector_t light = lightPosition;
   mat_trans_single4(light.x, light.y, light.z, light.w);
 
-  // Update player position
-  //plx_mat3d_translate(playerPosX, playerPosY, 0.0f);
-
-  handle_input();
-  handle_rings();
   // Transform normals
   vector_t transformedNormals[6];
   for (int i = 0; i < 6; ++i)
@@ -700,6 +694,7 @@ void Update()
   pvr_list_finish();
   pvr_scene_finish();
 
+  pvr_set_bg_color(bgR, bgG, bgB);
 }
 
 void Cleanup()
