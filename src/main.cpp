@@ -49,6 +49,7 @@ bool bgBUp = true;
 int score = 0;
 float ring_0_y = 0;
 float ring_0_x = 0;
+float ring_0_z = 0;
 int inputMode = 0;
 bool displayDebug = false;
 bool displayLial = false;
@@ -66,8 +67,8 @@ class Controller {
     bool start;
     bool lt;
     bool rt;
-    int joyX;
-    int joyY;
+    float joyX;
+    float joyY;
 };
 
 Controller controller;
@@ -380,43 +381,51 @@ void display_debug()
   fnt->draw(10.0f, 210.0f, 10.0f, joy_x_string);
 }
 
+void reset_ring(int r, float buffer)
+{
+  rings[r][0] = -6.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(6.0f))) + 3;
+  rings[r][1] = -4.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(4.0f))) + 2;
+  rings[r][2] = -60.0f + buffer;
+  for (int b = 0; b < 8; ++b)
+  {
+    ring_pool[r][b][0] = ring_verts[b][0] + rings[r][0];
+    ring_pool[r][b][1] = ring_verts[b][1] + rings[r][1];
+    ring_pool[r][b][2] = ring_verts[b][2] - rings[r][2];
+  }
+}
 void handle_rings()
 {
-  for (int q = 0; q < 5; ++q)
+  for (int r = 0; r < 5; ++r)
   {
-    rings[q][2] += 0.1f;
+    ring_0_x = rings[r][0];
+    ring_0_y = rings[r][1];
+    ring_0_z = rings[r][2];
+    rings[r][2] += 0.1f;
     for (int i = 0; i < 8; ++i) {
-      ring_pool[q][i][2] = ring_verts[i][2] + rings[q][2];
+      ring_pool[r][i][2] = ring_verts[i][2] + rings[r][2];
     }
-    if (rings[q][2] > 0.0f)
+    if(
+      0 < ring_0_z + 0.5f &&
+      0 > ring_0_z - 0.5f &&
+      playerPosX < ring_0_x + 0.5f &&
+      playerPosX > ring_0_x - 0.5f &&
+      playerPosY < ring_0_y + 0.5f &&
+      playerPosY > ring_0_y - 0.5f
+    )
     {
-      ring_0_y = rings[q][1];
-      ring_0_x = rings[q][0];
-      if(
-        playerPosX < ring_0_x + 0.5f &&
-        playerPosX > ring_0_x - 0.5f &&
-        playerPosY < ring_0_y + 0.5f &&
-        playerPosY > ring_0_y - 0.5f
-      )
-      {
-        score++;
-      }
-      rings[q][0] = -6.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(6.0f))) + 3;
-      rings[q][1] = -4.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(4.0f))) + 2;
-      rings[q][2] = -60.0f;
-      for (int b = 0; b < 8; ++b)
-      {
-        ring_pool[q][b][0] = ring_verts[b][0] + rings[q][0];
-        ring_pool[q][b][1] = ring_verts[b][1] + rings[q][1];
-        ring_pool[q][b][2] = ring_verts[b][2] - rings[q][2];
-      }
+      score++;
+      reset_ring(r, -3.0f + rings[r][2]);
+    }
+    if (rings[r][2] > 3.0f)
+    {
+      reset_ring(r, 0.0f);
     }
     for (int i = 0; i < 8; ++i)
-      ring_verts_in_list[q][i] = {
-        ring_pool[q][i][0],
-        ring_pool[q][i][1],
-        ring_pool[q][i][2],
-        ring_pool[q][i][3]
+      ring_verts_in_list[r][i] = {
+        ring_pool[r][i][0],
+        ring_pool[r][i][1],
+        ring_pool[r][i][2],
+        ring_pool[r][i][3]
       };
   }
 }
@@ -695,7 +704,8 @@ void Update()
   if (displayLial)
   {
     lial->sendHdr(PVR_LIST_TR_POLY);
-    plx_spr_inp(lial->getW(), lial->getH(), 550, 375, 20, 0xffffffff);
+    //plx_spr_inp(lial->getW(), lial->getH(), 500, 320, 20, 0xffffffff);
+    plx_spr_inp(lial->getW(), lial->getH(), 500, 320, 20, 0xaaaaaaaa);
   }
   if (displayDebug)
   {
