@@ -23,7 +23,8 @@ extern uint8 romdisk[];
 KOS_INIT_ROMDISK(romdisk);
 
 RefPtr<Font> fnt;
-RefPtr<Texture> lial;
+RefPtr<Texture> checker;
+RefPtr<Texture> maze;
 // Global variables
 bool exitProgram = false;
 pvr_poly_hdr_t nontexturedHeader;
@@ -37,7 +38,7 @@ pvr_poly_hdr_t texHeaders[6];
 // Lighting parameters
 float    ambientLight  = 0.3f;
 float    diffuseLight  = 0.7f;
-vector_t lightPosition = { 0.0f, 0.0f, 10.0f, 1.0f };
+vector_t lightPosition = { 0.0f, 2.0f, 10.0f, 1.0f };
 
 // Background color parameters
 float bgR = 0.00f;
@@ -54,7 +55,7 @@ int score = 0;
 int inputMode = 0;
 
 bool displayDebug = false;
-bool displayLial = false;
+bool displayChecker = false;
 
 class Controller {
   public:
@@ -78,14 +79,12 @@ Controller controller;
 // The starting positions for the player's vertices. Used to compare where they've moved
 // and to reset them.
 float player_verts_default[8][4] = {
-  {  0.2f,  0.2f,  0.2f, 0.2f },
-  { -0.2f,  0.2f,  0.2f, 0.2f },
-  {  0.2f, -0.2f,  0.2f, 0.2f },
-  { -0.2f, -0.2f,  0.2f, 0.2f },
-  {  0.2f,  0.2f, -0.2f, 0.2f },
-  { -0.2f,  0.2f, -0.2f, 0.2f },
-  {  0.2f, -0.2f, -0.2f, 0.2f },
-  { -0.2f, -0.2f, -0.2f, 0.2f }
+  {  0.0f,  0.2f,  0.0f, 0.2f },
+  {  0.0f,  0.0f,  0.4f, 0.2f },
+  {  0.2f,  0.0f,  0.0f, 0.2f },
+  {  0.0f, -0.2f,  0.0f, 0.2f },
+  {  0.0f,  0.0f, -0.4f, 0.2f },
+  { -0.2f,  0.0f,  0.0f, 0.2f },
 };
 
 // This is where I update the position of the player from frame to frame.
@@ -131,13 +130,15 @@ float ring_pool[5][8][4];
 vector_t rings_vectors[5][8];
 
 // Normals for a cube. These are for lighting. That's all I know.
-vector_t player_normals[6] = {
-  {  0.0f,  0.0f,  1.0f, 0.0f },
-  {  0.0f,  0.0f, -1.0f, 0.0f },
-  {  1.0f,  0.0f,  0.0f, 0.0f },
-  { -1.0f,  0.0f,  0.0f, 0.0f },
-  {  0.0f,  1.0f,  0.0f, 0.0f },
-  {  0.0f, -1.0f,  0.0f, 0.0f }
+vector_t player_normals[8] = {
+  {  1.0f,  1.0f,  1.0f, 0.0f },
+  {  1.0f, -1.0f,  1.0f, 0.0f },
+  { -1.0f, -1.0f,  1.0f, 0.0f },
+  { -1.0f,  1.0f,  1.0f, 0.0f },
+  {  1.0f,  1.0f, -1.0f, 0.0f },
+  {  1.0f, -1.0f, -1.0f, 0.0f },
+  { -1.0f, -1.0f, -1.0f, 0.0f },
+  { -1.0f,  1.0f, -1.0f, 0.0f },
 };
 
 vector_t ring_normals[6] = {
@@ -257,12 +258,9 @@ void Initialize()
   // Load all 6 textures
   texMemory[0] = loadTexture("/rd/dclogo.pvr");
   texMemory[1] = pvr_mem_malloc(256 * 256 * 2);
-  png_to_texture("/rd/lial.png", texMemory[1], PNG_NO_ALPHA);
-//  texMemory[1] = loadTexture("/rd/lrrlogo.pvr");
-//  texMemory[2] = loadTexture("/rd/ihorner.pvr");
-//  texMemory[3] = loadTexture("/rd/gstar.pvr");
-//  texMemory[4] = loadTexture("/rd/turner.pvr");
-//  texMemory[5] = loadTexture("/rd/savidan.pvr");
+  texMemory[2] = pvr_mem_malloc(256 * 256 * 2);
+  png_to_texture("/rd/checker.png", texMemory[1], PNG_NO_ALPHA);
+  png_to_texture("/rd/maze.png", texMemory[0], PNG_NO_ALPHA);
 
 //  for (int i = 0; i < 6; ++i)
   texHeaders[0] = createTexHeader(texMemory[0]);
@@ -289,7 +287,8 @@ void Initialize()
   fnt->setFilter(0);
   //fnt->setColor(0.0f, 0.0f, 0.0f);
   //
-  lial = new Texture("/rd/lial.png", true);
+  checker = new Texture("/rd/checker.png", true);
+  maze = new Texture("/rd/maze.png", true);
 }
 
 char * concat_char(const char *first_char, const char *second_char)
@@ -408,7 +407,7 @@ void handle_input()
   // This is just a test for sprites
   if (controller.b != previousController.b && controller.b)
   {
-    displayLial = !displayLial;
+    displayChecker = !displayChecker;
   }
 
   // Input mode 0 is D Pad, 1 is joystick. Start switches between them.
@@ -539,8 +538,8 @@ void Update()
   mat_trans_single4(light.x, light.y, light.z, light.w);
 
   // Transform normals
-  vector_t transformedNormals[6];
-  for (int i = 0; i < 6; ++i)
+  vector_t transformedNormals[8];
+  for (int i = 0; i < 8; ++i)
   {
     mat_trans_normal3_nomod(
       player_normals[i].x, player_normals[i].y, player_normals[i].z,
@@ -572,44 +571,45 @@ void Update()
   pvr_scene_begin();
   pvr_list_begin(PVR_LIST_OP_POLY);
 
-  pvr_prim(&texHeaders[1], sizeof(pvr_poly_hdr_t));
+  pvr_prim(&texHeaders[0], sizeof(pvr_poly_hdr_t));
   //pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
-  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[0], 1.0f, 0.0f);
-  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[0], 0.0f, 0.0f);
-  submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[0], 1.0f, 1.0f, true);
-
-  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[0], 1.0f, 0.0f);
-  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[0], 0.0f, 0.0f);
-  submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[0], 1.0f, 1.0f, true);
-
-  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[0], 1.0f, 0.0f);
-  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[0], 0.0f, 0.0f);
-  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[0], 1.0f, 1.0f, true);
-
-  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[0], 1.0f, 0.0f);
-  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[0], 0.0f, 1.0f);
-  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[0], 1.0f, 1.0f, true);
-
-  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[0], 1.0f, 0.0f);
   submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[0], 0.0f, 1.0f);
-  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[0], 1.0f, 1.0f, true);
+  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[0], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[0], 1.0f, 1.0f, true);
 
-  submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[0], 1.0f, 0.0f);
-  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[0], 0.0f, 1.0f);
-  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[0], 1.0f, 1.0f, true);
+  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[1], 0.0f, 1.0f);
+  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[1], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[1], 1.0f, 1.0f, true);
 
-  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[0], 1.0f, 0.0f);
-  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[0], 0.0f, 1.0f);
-  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[0], 1.0f, 1.0f, true);
+  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[2], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[2], 0.0f, 0.0f);
+  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[2], 1.0f, 1.0f, true);
 
-  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[0], 1.0f, 0.0f);
-  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[0], 0.0f, 1.0f);
-  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[0], 0.0f, 1.0f, true);
+  submitVertex(light, lightVertices[1], transformedVerts[1], transformedNormals[3], 0.0f, 1.0f);
+  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[3], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[3], 1.0f, 1.0f, true);
+
+  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[4], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[4], 0.0f, 1.0f);
+  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[4], 1.0f, 1.0f, true);
+
+  submitVertex(light, lightVertices[2], transformedVerts[2], transformedNormals[5], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[5], 0.0f, 1.0f);
+  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[5], 1.0f, 1.0f, true);
+
+  submitVertex(light, lightVertices[3], transformedVerts[3], transformedNormals[6], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[6], 0.0f, 1.0f);
+  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[6], 0.0f, 1.0f, true);
+
+  submitVertex(light, lightVertices[0], transformedVerts[0], transformedNormals[7], 1.0f, 0.0f);
+  submitVertex(light, lightVertices[4], transformedVerts[4], transformedNormals[7], 0.0f, 1.0f);
+  submitVertex(light, lightVertices[5], transformedVerts[5], transformedNormals[7], 1.0f, 1.0f, true);
 
 
   for (int i = 0; i < 5; ++i)
   {
-    pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
+    //pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
+    pvr_prim(&texHeaders[1], sizeof(pvr_poly_hdr_t));
     submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], 1.0f, 0.0f);
     submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[0], 0.0f, 0.0f);
     submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[0], 1.0f, 1.0f);
@@ -646,10 +646,10 @@ void Update()
   char *score_string = concat_char("Score: ", int_to_char(score));
   fnt->draw(10.0f, 60.0f, 10.0f, score_string);
 
-  if (displayLial)
+  if (displayChecker)
   {
-    lial->sendHdr(PVR_LIST_TR_POLY);
-    plx_spr_inp(lial->getW(), lial->getH(), 500, 320, 20, 0xaaaaaaaa);
+    checker->sendHdr(PVR_LIST_TR_POLY);
+    plx_spr_inp(checker->getW(), checker->getH(), 500, 320, 20, 0xaaaaaaaa);
   }
   if (displayDebug)
   {

@@ -3,6 +3,8 @@
 *.cdi
 *.img
 
+libs
+
 # Prerequisites
 *.d
 
