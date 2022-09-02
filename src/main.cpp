@@ -78,7 +78,7 @@ Controller controller;
 
 // The starting positions for the player's vertices. Used to compare where they've moved
 // and to reset them.
-float player_verts_default[8][4] = {
+float player_verts_default[6][4] = {
   {  0.0f,  0.2f,  0.0f, 0.2f },
   {  0.0f,  0.0f,  0.4f, 0.2f },
   {  0.2f,  0.0f,  0.0f, 0.2f },
@@ -88,7 +88,7 @@ float player_verts_default[8][4] = {
 };
 
 // This is where I update the position of the player from frame to frame.
-float player_verts[8][4] = {
+float player_verts[6][4] = {
   {  0.0f,  0.2f,  0.0f, 0.2f },
   {  0.0f,  0.0f,  0.4f, 0.2f },
   {  0.2f,  0.0f,  0.0f, 0.2f },
@@ -99,7 +99,7 @@ float player_verts[8][4] = {
 
 // These are the vectors that get submitted to the renderer for the player.
 // They are set from the player's verts every frame after those are updated.
-vector_t player_vectors[8];
+vector_t player_vectors[6];
 
 // Abstracted positions for all the rings as single points in space, xyz values.
 float rings[5][3] = {
@@ -110,24 +110,32 @@ float rings[5][3] = {
   { 0.0f, 0.0f, -10.0f }
 };
 
-float ring_verts[8][4] = {
-  {  0.2f,  0.2f,  0.2f, 0.2f },
-  { -0.2f,  0.2f,  0.2f, 0.2f },
-  {  0.2f, -0.2f,  0.2f, 0.2f },
-  { -0.2f, -0.2f,  0.2f, 0.2f },
-  {  0.2f,  0.2f, -0.2f, 0.2f },
-  { -0.2f,  0.2f, -0.2f, 0.2f },
-  {  0.2f, -0.2f, -0.2f, 0.2f },
-  { -0.2f, -0.2f, -0.2f, 0.2f }
+float ring_verts[16][4] = {
+  {  0.0f,  0.25f,  0.0f, 0.2f },
+  {  0.0f,  0.20f, 0.00f, 0.2f },
+  {  0.25f,  0.23f,  0.0f, 0.2f },
+  {  0.20f,  0.18f,  0.00f, 0.2f },
+  {  0.30f,  0.0f,  0.00f, 0.2f },
+  {  0.25f,  0.0f,  0.00f, 0.2f },
+  {  0.25f,  -0.23f,  0.0f, 0.2f },
+  {  0.20f,  -0.18f,  0.00f, 0.2f },
+  {  0.0f,  -0.25f,  0.00f, 0.2f },
+  {  0.0f,  -0.20f,  0.00f, 0.2f },
+  {  -0.25f,  -0.23f,  0.0f, 0.2f },
+  {  -0.20f,  -0.18f,  0.00f, 0.2f },
+  {  -0.25f,  0.0f,  0.00f, 0.2f },
+  {  -0.30f,  0.0f,  0.00f, 0.2f },
+  {  -0.25f,  0.23f,  0.0f, 0.2f },
+  {  -0.20f,  0.18f,  0.00f, 0.2f },
 };
 
-float ring_pool[5][8][4];
+float ring_pool[5][16][4];
 
 // I don't know wtf vector_t is, but I need it for the renderer, so I'm handling all the
 // calculations in my own matrices then mapping them to these vector_t's in a very stupid way.
 // You can't set the individual values in the vectors directly... Same thing is done for the
 // player higher up.
-vector_t rings_vectors[5][8];
+vector_t rings_vectors[5][16];
 
 // Normals for a cube. These are for lighting. That's all I know.
 vector_t player_normals[8] = {
@@ -244,7 +252,7 @@ void Initialize()
   // mp3_init();
 
   for (int a = 0; a < 5; ++a)
-    for (int b = 0; b < 8; ++b)
+    for (int b = 0; b < 16; ++b)
       for (int c = 0; c < 4; ++c)
         ring_pool[a][b][c] = ring_verts[b][c];
 
@@ -318,7 +326,7 @@ void reset_ring(int r, float buffer)
   rings[r][0] = -6.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(6.0f))) + 3;
   rings[r][1] = -4.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(4.0f))) + 2;
   rings[r][2] = -60.0f + buffer;
-  for (int b = 0; b < 8; ++b)
+  for (int b = 0; b < 16; ++b)
   {
     ring_pool[r][b][0] = ring_verts[b][0] + rings[r][0];
     ring_pool[r][b][1] = ring_verts[b][1] + rings[r][1];
@@ -332,7 +340,7 @@ void handle_rings()
     rings[r][2] += 0.1f;
 
     // move all the rings forward every frame
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 16; ++i) {
       ring_pool[r][i][2] = ring_verts[i][2] + rings[r][2];
     }
 
@@ -357,7 +365,7 @@ void handle_rings()
     }
 
     // set the vectors for the rings to match their vertex arrays (wtf am I doing)
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 16; ++i)
       rings_vectors[r][i] = {
         ring_pool[r][i][0],
         ring_pool[r][i][1],
@@ -371,7 +379,7 @@ void reset_player_position()
 {
   playerPosY = 0.0f;
   playerPosX = 0.0f;
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 6; ++i)
   {
     player_verts[i][0] = player_verts_default[i][0];
     player_verts[i][1] = player_verts_default[i][1];
@@ -419,22 +427,22 @@ void handle_input()
     }
     if (controller.d_pad_up && playerPosY < 2.0f) {
       playerPosY += 0.1f;
-      for (int i = 0; i < 8; ++i)
+      for (int i = 0; i < 6; ++i)
         player_verts[i][1] += 0.1f;
     }
     if (controller.d_pad_down && playerPosY > -2.0f) {
       playerPosY += -0.1f;
-      for (int i = 0; i < 8; ++i)
+      for (int i = 0; i < 6; ++i)
         player_verts[i][1] -= 0.1f;
     }
     if (controller.d_pad_right && playerPosX < 3.0f) {
       playerPosX += 0.1f;
-      for (int i = 0; i < 8; ++i)
+      for (int i = 0; i < 6; ++i)
         player_verts[i][0] += 0.1f;
     }
     if (controller.d_pad_left && playerPosX > -3.0f) {
       playerPosX += -0.1f;
-      for (int i = 0; i < 8; ++i)
+      for (int i = 0; i < 6; ++i)
         player_verts[i][0] -= 0.1f;
     }
   } else
@@ -456,7 +464,7 @@ void handle_input()
       } else {
         playerPosX = controller.joyX;
       }
-      for (int i = 0; i < 8; ++i)
+      for (int i = 0; i < 6; ++i)
         player_verts[i][0] = player_verts_default[i][0] + playerPosX;
     }
 
@@ -473,13 +481,13 @@ void handle_input()
       } else {
         playerPosY = controller.joyY;
       }
-      for (int i = 0; i < 8; ++i)
+      for (int i = 0; i < 6; ++i)
         player_verts[i][1] = player_verts_default[i][1] - playerPosY;
     }
   }
 
   // Map player's vectors to vertices (again wtf am I doing)
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 6; ++i)
     player_vectors[i] = {
       player_verts[i][0],
       player_verts[i][1],
@@ -548,20 +556,20 @@ void Update()
   }
 
   // Transform vertices into camera space
-  vector_t lightVertices[8];
-  plx_mat_transform(player_vectors, lightVertices, 8, 4 * sizeof(float));
-  plx_mat_transform(rings_vectors[0], lightVertices, 8, 4 * sizeof(float));
+  vector_t lightVertices[16];
+  plx_mat_transform(player_vectors, lightVertices, 6, 4 * sizeof(float));
+  plx_mat_transform(rings_vectors[0], lightVertices, 16, 4 * sizeof(float));
 
   // Transform vertices for graphics chip
   plx_mat_identity();
   plx_mat3d_apply_all();
 
-  vector_t transformedVerts[8];
-  plx_mat_transform(player_vectors, transformedVerts, 8, 4 * sizeof(float));
+  vector_t transformedVerts[6];
+  plx_mat_transform(player_vectors, transformedVerts, 6, 4 * sizeof(float));
 
-  vector_t ringTransformedVerts[5][8];
+  vector_t ringTransformedVerts[5][18];
   for (int i = 0; i < 5; ++i)
-    plx_mat_transform(rings_vectors[i], ringTransformedVerts[i], 8, 4 * sizeof(float));
+    plx_mat_transform(rings_vectors[i], ringTransformedVerts[i], 16, 4 * sizeof(float));
 
   plx_mat3d_pop();
 
@@ -610,35 +618,45 @@ void Update()
   {
     //pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
     pvr_prim(&texHeaders[1], sizeof(pvr_poly_hdr_t));
-    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], 1.0f, 0.0f);
+    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], 0.5f, 0.0f);
     submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[0], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[0], 1.0f, 1.0f);
+    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[0], 0.5f, 1.2f);
+    submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], ring_normals[0], 0.0f, 1.0f, true );
+
+    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[0], 0.5f, 1.2f);
     submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], ring_normals[0], 0.0f, 1.0f);
+    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[0], 0.5f, 0.0f);
+    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[0], 0.0f, 0.0f, true);
 
-    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[1], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[1], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[1], 1.0f, 1.0f);
-    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[1], 0.0f, 1.0f);
+    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[0], 0.5f, 0.0f);
+    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[0], 0.0f, 0.0f);
+    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[0], 0.5f, 1.0f);
+    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[0], 0.5f, 1.0f, true);
 
-    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[2], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[2], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[2], 1.0f, 1.0f);
-    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[2], 0.0f, 1.0f);
+    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[0], 0.5f, 0.0f);
+    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[0], 0.0f, 0.0f);
+    submitVertex(light, lightVertices[8], ringTransformedVerts[i][8], ring_normals[0], 0.5f, 1.5f);
+    submitVertex(light, lightVertices[9], ringTransformedVerts[i][9], ring_normals[0], 0.0f, 1.0f, true);
 
-    submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[3], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[3], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], ring_normals[3], 1.0f, 1.0f);
-    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[3], 0.0f, 1.0f);
+    submitVertex(light, lightVertices[8], ringTransformedVerts[i][8], ring_normals[0], 0.5f, 1.0f);
+    submitVertex(light, lightVertices[9], ringTransformedVerts[i][9], ring_normals[0], 0.0f, 1.0f);
+    submitVertex(light, lightVertices[10], ringTransformedVerts[i][10], ring_normals[0], 1.0f, 0.0f);
+    submitVertex(light, lightVertices[11], ringTransformedVerts[i][11], ring_normals[0], 0.5f, 0.0f, true);
 
-    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[4], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[4], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[4], 1.0f, 1.0f);
-    submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[4], 0.0f, 1.0f);
+    submitVertex(light, lightVertices[11], ringTransformedVerts[i][11], ring_normals[0], 0.5f, 1.0f);
+    submitVertex(light, lightVertices[12], ringTransformedVerts[i][12], ring_normals[0], 0.0f, 0.0f);
+    submitVertex(light, lightVertices[10], ringTransformedVerts[i][10], ring_normals[0], 1.0f, 0.0f);
+    submitVertex(light, lightVertices[13], ringTransformedVerts[i][13], ring_normals[0], 0.5f, 1.0f, true);
 
-    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[5], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[5], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], ring_normals[5], 1.0f, 1.0f);
-    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[5], 0.0f, 1.0f, true);
+    submitVertex(light, lightVertices[13], ringTransformedVerts[i][13], ring_normals[0], 0.5f, 1.0f);
+    submitVertex(light, lightVertices[10], ringTransformedVerts[i][10], ring_normals[0], 1.0f, 0.0f);
+    submitVertex(light, lightVertices[14], ringTransformedVerts[i][14], ring_normals[0], 1.0f, 0.0f);
+    submitVertex(light, lightVertices[15], ringTransformedVerts[i][15], ring_normals[0], 0.5f, 1.0f, true);
+
+    submitVertex(light, lightVertices[14], ringTransformedVerts[i][14], ring_normals[0], 1.0f, 0.0f);
+    submitVertex(light, lightVertices[15], ringTransformedVerts[i][15], ring_normals[0], 0.5f, 1.0f);
+    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], 1.0f, 0.0f);
+    submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[0], 0.5f, 1.0f, true);
   }
 
   pvr_list_begin(PVR_LIST_TR_POLY);
