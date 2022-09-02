@@ -111,22 +111,25 @@ float rings[5][3] = {
 };
 
 float ring_verts[16][4] = {
-  {  0.0f,  0.25f,  0.0f, 0.2f },
-  {  0.0f,  0.20f, 0.00f, 0.2f },
-  {  0.25f,  0.23f,  0.0f, 0.2f },
-  {  0.20f,  0.18f,  0.00f, 0.2f },
-  {  0.30f,  0.0f,  0.00f, 0.2f },
-  {  0.25f,  0.0f,  0.00f, 0.2f },
-  {  0.25f,  -0.23f,  0.0f, 0.2f },
-  {  0.20f,  -0.18f,  0.00f, 0.2f },
-  {  0.0f,  -0.25f,  0.00f, 0.2f },
-  {  0.0f,  -0.20f,  0.00f, 0.2f },
-  {  -0.25f,  -0.23f,  0.0f, 0.2f },
-  {  -0.20f,  -0.18f,  0.00f, 0.2f },
-  {  -0.25f,  0.0f,  0.00f, 0.2f },
-  {  -0.30f,  0.0f,  0.00f, 0.2f },
-  {  -0.25f,  0.23f,  0.0f, 0.2f },
-  {  -0.20f,  0.18f,  0.00f, 0.2f },
+  {  0.00f,  0.25f,  0.00f, 0.2f }, // 0  far top middle
+  {  0.00f,  0.20f,  0.00f, 0.2f },// 1  close top middle
+  {  0.25f,  0.23f,  0.00f, 0.2f },// 2  far top right
+  {  0.20f,  0.18f,  0.00f, 0.2f },// 3  close top right
+
+  {  0.30f,  0.00f,  0.00f, 0.2f },// 4  far right
+  {  0.25f,  0.00f,  0.00f, 0.2f },// 5  close right
+  {  0.25f, -0.23f,  0.00f, 0.2f },// 6  far bottom right
+  {  0.20f, -0.18f,  0.00f, 0.2f },// 7  close bottom right
+
+  {  0.00f, -0.25f,  0.00f, 0.2f },// 8  far bottom middle
+  {  0.00f, -0.20f,  0.00f, 0.2f },// 9  close bottom middle
+  { -0.25f, -0.23f,  0.00f, 0.2f },// 10 far bottom left
+  { -0.20f, -0.18f,  0.00f, 0.2f },// 11 close bottom left
+
+  { -0.30f,  0.00f,  0.00f, 0.2f },// 12 far left middle
+  { -0.25f,  0.00f,  0.00f, 0.2f },// 13 close left middle
+  { -0.25f,  0.23f,  0.00f, 0.2f },// 14 far top left
+  { -0.20f,  0.18f,  0.00f, 0.2f },// 15 close top left
 };
 
 float ring_pool[5][16][4];
@@ -618,45 +621,48 @@ void Update()
   {
     //pvr_prim(&nontexturedHeader, sizeof(pvr_poly_hdr_t));
     pvr_prim(&texHeaders[1], sizeof(pvr_poly_hdr_t));
-    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], 0.5f, 0.0f);
-    submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[0], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[0], 0.5f, 1.2f);
-    submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], ring_normals[0], 0.0f, 1.0f, true );
+    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], ring_verts[0][0], ring_verts[0][1]);
+    submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[0], ring_verts[1][0], ring_verts[1][1]);
+    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[0], ring_verts[2][0], ring_verts[2][1]);
+    submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], ring_normals[0], ring_verts[3][0], ring_verts[3][1]);
 
-    submitVertex(light, lightVertices[2], ringTransformedVerts[i][2], ring_normals[0], 0.5f, 1.2f);
-    submitVertex(light, lightVertices[3], ringTransformedVerts[i][3], ring_normals[0], 0.0f, 1.0f);
-    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[0], 0.5f, 0.0f);
-    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[0], 0.0f, 0.0f, true);
+    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[0], ring_verts[4][0], ring_verts[4][1]);
+    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[0], ring_verts[5][0], ring_verts[5][1]);
+    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[0], ring_verts[6][0], ring_verts[6][1]);
+    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[0], ring_verts[7][0], ring_verts[7][1]);
 
-    submitVertex(light, lightVertices[4], ringTransformedVerts[i][4], ring_normals[0], 0.5f, 0.0f);
-    submitVertex(light, lightVertices[5], ringTransformedVerts[i][5], ring_normals[0], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[0], 0.5f, 1.0f);
-    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[0], 0.5f, 1.0f, true);
+    submitVertex(light, lightVertices[8], ringTransformedVerts[i][8], ring_normals[0], ring_verts[8][0], ring_verts[8][1]);
+    submitVertex(light, lightVertices[9], ringTransformedVerts[i][9], ring_normals[0], ring_verts[9][0], ring_verts[9][1]);
+    submitVertex(light, lightVertices[10], ringTransformedVerts[i][10], ring_normals[0], ring_verts[10][0], ring_verts[10][1]);
+    submitVertex(light, lightVertices[11], ringTransformedVerts[i][11], ring_normals[0], ring_verts[11][0], ring_verts[11][1]);
 
-    submitVertex(light, lightVertices[6], ringTransformedVerts[i][6], ring_normals[0], 0.5f, 0.0f);
-    submitVertex(light, lightVertices[7], ringTransformedVerts[i][7], ring_normals[0], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[8], ringTransformedVerts[i][8], ring_normals[0], 0.5f, 1.5f);
-    submitVertex(light, lightVertices[9], ringTransformedVerts[i][9], ring_normals[0], 0.0f, 1.0f, true);
+    submitVertex(light, lightVertices[12], ringTransformedVerts[i][12], ring_normals[0], ring_verts[12][0], ring_verts[12][1]);
+    submitVertex(light, lightVertices[13], ringTransformedVerts[i][13], ring_normals[0], ring_verts[13][0], ring_verts[13][1]);
+    submitVertex(light, lightVertices[14], ringTransformedVerts[i][14], ring_normals[0], ring_verts[14][0], ring_verts[14][1]);
+    submitVertex(light, lightVertices[15], ringTransformedVerts[i][15], ring_normals[0], ring_verts[15][0], ring_verts[15][1]);
 
-    submitVertex(light, lightVertices[8], ringTransformedVerts[i][8], ring_normals[0], 0.5f, 1.0f);
-    submitVertex(light, lightVertices[9], ringTransformedVerts[i][9], ring_normals[0], 0.0f, 1.0f);
-    submitVertex(light, lightVertices[10], ringTransformedVerts[i][10], ring_normals[0], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[11], ringTransformedVerts[i][11], ring_normals[0], 0.5f, 0.0f, true);
+    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], ring_verts[0][0], ring_verts[0][1]);
+    submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[0], ring_verts[1][0], ring_verts[1][1], true);
 
-    submitVertex(light, lightVertices[11], ringTransformedVerts[i][11], ring_normals[0], 0.5f, 1.0f);
-    submitVertex(light, lightVertices[12], ringTransformedVerts[i][12], ring_normals[0], 0.0f, 0.0f);
-    submitVertex(light, lightVertices[10], ringTransformedVerts[i][10], ring_normals[0], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[13], ringTransformedVerts[i][13], ring_normals[0], 0.5f, 1.0f, true);
-
-    submitVertex(light, lightVertices[13], ringTransformedVerts[i][13], ring_normals[0], 0.5f, 1.0f);
-    submitVertex(light, lightVertices[10], ringTransformedVerts[i][10], ring_normals[0], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[14], ringTransformedVerts[i][14], ring_normals[0], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[15], ringTransformedVerts[i][15], ring_normals[0], 0.5f, 1.0f, true);
-
-    submitVertex(light, lightVertices[14], ringTransformedVerts[i][14], ring_normals[0], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[15], ringTransformedVerts[i][15], ring_normals[0], 0.5f, 1.0f);
-    submitVertex(light, lightVertices[0], ringTransformedVerts[i][0], ring_normals[0], 1.0f, 0.0f);
-    submitVertex(light, lightVertices[1], ringTransformedVerts[i][1], ring_normals[0], 0.5f, 1.0f, true);
+  // 0  {  0.00f,  0.25f,  3.00f, 0.2f, 0.5f, 0.0f } // 0  far top middle
+  // 1  {  0.00f,  0.20f,  3.00f, 0.2f, 0.0f, 0.0f },// 1  close top middle
+  // 2  {  0.25f,  0.23f,  3.00f, 0.2f, 0.5f, 1.2f },// 2  far top right
+  // 3  {  0.20f,  0.18f,  3.00f, 0.2f, 0.0f, 1.0f },// 3  close top right
+  //
+  // 4  {  0.30f,  0.00f,  3.00f, 0.2f, 0.5f, 0.0f },// 4  far right
+  // 5  {  0.25f,  0.00f,  3.00f, 0.2f, 0.0f, 0.0f },// 5  close right
+  // 6  {  0.25f, -0.23f,  3.00f, 0.2f, 0.0f, 1.0f },// 6  far bottom right
+  // 7  {  0.20f, -0.18f,  3.00f, 0.2f, 0.5f, 1.0f },// 7  close bottom right
+  //
+  // 8  {  0.00f, -0.25f,  3.00f, 0.2f, 0.5f, 1.5f },// 8  far bottom middle
+  // 9  {  0.00f, -0.20f,  3.00f, 0.2f, 0.0f, 1.0f },// 9  close bottom middle
+  // 10 { -0.25f, -0.23f,  3.00f, 0.2f, 1.0f, 0.5f },// 10 far bottom left
+  // 11 { -0.20f, -0.18f,  3.00f, 0.2f, 0.5f, 0.0f },// 11 close bottom left
+  //
+  // 12 { -0.30f,  0.00f,  3.00f, 0.2f, 0.0f, 0.0f },// 12 far left middle
+  // 13 { -0.25f,  0.00f,  3.00f, 0.2f, 0.5f, 1.0f },// 13 close left middle
+  // 14 { -0.25f,  0.23f,  3.00f, 0.2f, 1.0f, 0.0f },// 14 far top left
+  // 15 { -0.20f,  0.18f,  3.00f, 0.2f, 0.5f, 1.0f },// 15 close top left
   }
 
   pvr_list_begin(PVR_LIST_TR_POLY);
