@@ -111,47 +111,47 @@ float rings[5][3] = {
 };
 
 float ring_verts[16][4] = {
-  {  0.00f,  0.25f,  0.00f, 0.2f }, // 0  far top middle
+  {  0.00f,  0.25f,  0.10f, 0.2f }, // 0  far top middle
   {  0.00f,  0.20f,  0.00f, 0.2f },// 1  close top middle
-  {  0.25f,  0.23f,  0.00f, 0.2f },// 2  far top right
+  {  0.25f,  0.23f,  0.10f, 0.2f },// 2  far top right
   {  0.20f,  0.18f,  0.00f, 0.2f },// 3  close top right
 
-  {  0.30f,  0.00f,  0.00f, 0.2f },// 4  far right
+  {  0.30f,  0.00f,  0.10f, 0.2f },// 4  far right
   {  0.25f,  0.00f,  0.00f, 0.2f },// 5  close right
-  {  0.25f, -0.23f,  0.00f, 0.2f },// 6  far bottom right
+  {  0.25f, -0.23f,  0.10f, 0.2f },// 6  far bottom right
   {  0.20f, -0.18f,  0.00f, 0.2f },// 7  close bottom right
 
-  {  0.00f, -0.25f,  0.00f, 0.2f },// 8  far bottom middle
+  {  0.00f, -0.25f,  0.10f, 0.2f },// 8  far bottom middle
   {  0.00f, -0.20f,  0.00f, 0.2f },// 9  close bottom middle
-  { -0.25f, -0.23f,  0.00f, 0.2f },// 10 far bottom left
+  { -0.25f, -0.23f,  0.10f, 0.2f },// 10 far bottom left
   { -0.20f, -0.18f,  0.00f, 0.2f },// 11 close bottom left
 
-  { -0.30f,  0.00f,  0.00f, 0.2f },// 12 far left middle
+  { -0.30f,  0.00f,  0.10f, 0.2f },// 12 far left middle
   { -0.25f,  0.00f,  0.00f, 0.2f },// 13 close left middle
-  { -0.25f,  0.23f,  0.00f, 0.2f },// 14 far top left
+  { -0.25f,  0.23f,  0.10f, 0.2f },// 14 far top left
   { -0.20f,  0.18f,  0.00f, 0.2f },// 15 close top left
 };
 
 int ring_strip_length = 18;
 int ring_strip[18][2] = {
-  { 0, 0 },
-  { 1, 0 },
-  { 2, 0 },
-  { 3, 0 },
-  { 4, 0 },
-  { 5, 0 },
-  { 6, 0 },
-  { 7, 0 },
-  { 8, 0 },
-  { 9, 0 },
-  { 10, 0 },
-  { 11, 0 },
-  { 12, 0 },
-  { 13, 0 },
-  { 14, 0 },
-  { 15, 0 },
-  { 0, 0 },
-  { 1, 0 },
+  { 0, 5 },
+  { 1, 5 },
+  { 2, 5 },
+  { 3, 3 },
+  { 4, 3 },
+  { 5, 3 },
+  { 6, 3 },
+  { 7, 2 },
+  { 8, 2 },
+  { 9, 2 },
+  { 10, 4 },
+  { 11, 4 },
+  { 12, 4 },
+  { 13, 4 },
+  { 14, 5 },
+  { 15, 5 },
+  { 0, 5 },
+  { 1, 5 },
 };
 
 float ring_pool[5][16][4];
@@ -177,10 +177,10 @@ vector_t player_normals[8] = {
 vector_t ring_normals[6] = {
   {  0.0f,  0.0f,  1.0f, 0.0f },
   {  0.0f,  0.0f, -1.0f, 0.0f },
-  {  1.0f,  0.0f,  0.0f, 0.0f },
-  { -1.0f,  0.0f,  0.0f, 0.0f },
-  {  0.0f,  1.0f,  0.0f, 0.0f },
-  {  0.0f, -1.0f,  0.0f, 0.0f }
+  {  1.0f,  0.0f,  3.0f, 0.0f },
+  { -1.0f,  0.0f,  3.0f, 0.0f },
+  {  0.0f,  1.0f,  3.0f, 0.0f },
+  {  0.0f, -1.0f,  3.0f, 0.0f }
 };
 
 const char * int_to_char(int i)
