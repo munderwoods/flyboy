@@ -162,7 +162,6 @@ float ring_pool[5][16][4];
 // player higher up.
 vector_t rings_vectors[5][16];
 
-// Normals for a cube. These are for lighting. That's all I know.
 vector_t player_normals[8] = {
   {  1.0f,  1.0f,  1.0f, 0.0f },
   {  1.0f, -1.0f,  1.0f, 0.0f },
@@ -654,8 +653,8 @@ void Update()
         lightVertices[ring_strip[v][0]],
         ringTransformedVerts[i][ring_strip[v][0]],
         ring_normals[ring_strip[v][1]],
-        ring_verts[ring_strip[v][0]][0],
-        ring_verts[ring_strip[v][0]][1],
+        ring_verts[ring_strip[v][0]][0] / 2,
+        ring_verts[ring_strip[v][0]][1] / 2,
         end
       );
     }
