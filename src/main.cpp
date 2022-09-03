@@ -1,6 +1,5 @@
 #include <kos.h>
 
-//#include <mp3/sndserver.h>
 #include <plx/matrix.h>
 #include <plx/prim.h>
 #include <stdlib.h>
@@ -10,13 +9,14 @@
 #include <string.h>
 #include <plx/sprite.h>
 #include <png/png.h>
+#include <oggvorbis/sndoggvorbis.h>
 
 #include "lrrsoft.h"
 
 using namespace std;
 
 // Initialize KOS
-KOS_INIT_FLAGS(INIT_DEFAULT);
+KOS_INIT_FLAGS(INIT_DEFAULT | INIT_MALLOCSTATS);
 
 // Initialize the ROM disk
 extern uint8 romdisk[];
@@ -273,7 +273,7 @@ void Initialize()
   pvr_init_defaults();
   plx_mat3d_init();
   snd_stream_init();
-  // mp3_init();
+  sndoggvorbis_init();
 
   for (int a = 0; a < 5; ++a)
     for (int b = 0; b < 16; ++b)
@@ -311,8 +311,6 @@ void Initialize()
   vector_t cameraUp      = { 0.0f, 1.0f, 0.0f, 0.0f };
   plx_mat3d_lookat(&cameraPosition, &cameraTarget, &cameraUp);
 
-  // Play music with looping
-//  mp3_start("/rd/tucson.mp3", 1);
   fnt = new Font("/rd/pixel-font.txf");
   fnt->setSize(50.0f);
   fnt->setColor(1.0f, 1.0f, 1.0f);
@@ -381,6 +379,7 @@ void handle_rings()
       )
       {
         score++;
+        sndoggvorbis_start("/rd/ring.ogg", 0);
         reset_ring(r, -3.0f + rings[r][2]);
       }
 
@@ -695,11 +694,7 @@ void Cleanup()
   pvr_mem_free(texMemory[1]);
   pvr_mem_free(texMemory[0]);
 
-  // Stop playing music
-//  mp3_stop();
-
-  // Shut down libraries we used
-//  mp3_shutdown();
+  sndoggvorbis_stop();
   snd_stream_shutdown();
   pvr_shutdown();
 }
