@@ -1,5 +1,7 @@
 #include <kos.h>
 
+#include <stdio.h>
+
 #include <plx/matrix.h>
 #include <plx/prim.h>
 #include <stdlib.h>
@@ -702,7 +704,7 @@ void Cleanup()
 int main(int argc, char *argv[])
 {
   Initialize();
-
+  sndoggvorbis_start("/rd/music3.ogg", 1);
   while (!exitProgram)
   {
     Update();
