@@ -15,8 +15,8 @@ The resulting test.cdi in the built-cdis directory will play on a Dreamcast like
 
 Technology used and code ripped off from:
 
-https://github.com/KallistiOS/KallistiOS
-https://gitlab.com/simulant/mkdcdisc
-https://github.com/Nold360/docker-kallistios-sdk
-https://github.com/ianmicheal/Dreamcast-ADX-homebrew-opensrc-
-https://github.com/DarkMorford/dreamcast101
+* https://github.com/KallistiOS/KallistiOS
+* https://gitlab.com/simulant/mkdcdisc
+* https://github.com/Nold360/docker-kallistios-sdk
+* https://github.com/ianmicheal/Dreamcast-ADX-homebrew-opensrc-
+* https://github.com/DarkMorford/dreamcast101
