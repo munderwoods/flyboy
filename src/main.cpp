@@ -1,6 +1,7 @@
 #include <kos.h>
 
-//#include <mp3/sndserver.h>
+#include <stdio.h>
+
 #include <plx/matrix.h>
 #include <plx/prim.h>
 #include <stdlib.h>
@@ -10,6 +11,7 @@
 #include <string.h>
 #include <plx/sprite.h>
 #include <png/png.h>
+#include <oggvorbis/sndoggvorbis.h>
 
 #include "lrrsoft.h"
 
@@ -273,7 +275,7 @@ void Initialize()
   pvr_init_defaults();
   plx_mat3d_init();
   snd_stream_init();
-  // mp3_init();
+  sndoggvorbis_init();
 
   for (int a = 0; a < 5; ++a)
     for (int b = 0; b < 16; ++b)
@@ -311,8 +313,6 @@ void Initialize()
   vector_t cameraUp      = { 0.0f, 1.0f, 0.0f, 0.0f };
   plx_mat3d_lookat(&cameraPosition, &cameraTarget, &cameraUp);
 
-  // Play music with looping
-//  mp3_start("/rd/tucson.mp3", 1);
   fnt = new Font("/rd/pixel-font.txf");
   fnt->setSize(50.0f);
   fnt->setColor(1.0f, 1.0f, 1.0f);
@@ -361,34 +361,32 @@ void handle_rings()
 {
   for (int r = 0; r < 5; ++r)
   {
-    if (!displayDebug)
+    rings[r][2] += 0.1f;
+
+    // move all the rings forward every frame
+    for (int i = 0; i < 16; ++i) {
+      ring_pool[r][i][2] = ring_verts[i][2] + rings[r][2];
+    }
+
+    // detect collision with player
+    if(
+      0 < rings[r][2] + 0.5f &&
+      0 > rings[r][2] - 0.5f &&
+      playerPosX < rings[r][0] + 0.5f &&
+      playerPosX > rings[r][0] - 0.5f &&
+      playerPosY < rings[r][1] + 0.5f &&
+      playerPosY > rings[r][1] - 0.5f
+    )
     {
-      rings[r][2] += 0.1f;
+      score++;
+      //sndoggvorbis_start("/rd/ring.ogg", 0);
+      reset_ring(r, -3.0f + rings[r][2]);
+    }
 
-      // move all the rings forward every frame
-      for (int i = 0; i < 16; ++i) {
-        ring_pool[r][i][2] = ring_verts[i][2] + rings[r][2];
-      }
-
-      // detect collision with player
-      if(
-        0 < rings[r][2] + 0.5f &&
-        0 > rings[r][2] - 0.5f &&
-        playerPosX < rings[r][0] + 0.5f &&
-        playerPosX > rings[r][0] - 0.5f &&
-        playerPosY < rings[r][1] + 0.5f &&
-        playerPosY > rings[r][1] - 0.5f
-      )
-      {
-        score++;
-        reset_ring(r, -3.0f + rings[r][2]);
-      }
-
-      // reset for when palyer misses the ring
-      if (rings[r][2] > 3.0f)
-      {
-        reset_ring(r, 0.0f);
-      }
+    // reset for when palyer misses the ring
+    if (rings[r][2] > 3.0f)
+    {
+      reset_ring(r, 0.0f);
     }
 
     // set the vectors for the rings to match their vertex arrays (wtf am I doing)
@@ -695,11 +693,7 @@ void Cleanup()
   pvr_mem_free(texMemory[1]);
   pvr_mem_free(texMemory[0]);
 
-  // Stop playing music
-//  mp3_stop();
-
-  // Shut down libraries we used
-//  mp3_shutdown();
+  sndoggvorbis_stop();
   snd_stream_shutdown();
   pvr_shutdown();
 }
@@ -707,7 +701,7 @@ void Cleanup()
 int main(int argc, char *argv[])
 {
   Initialize();
-
+  sndoggvorbis_start("/rd/music.ogg", 1);
   while (!exitProgram)
   {
     Update();

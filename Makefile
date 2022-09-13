@@ -13,7 +13,8 @@ CHEAT_ARG := $(shell source /opt/toolchains/dc/kos/environ.sh)
 
 all: build cdi run-cdi
 
-include $(KOS_BASE)/Makefile.rules
+init:
+	docker build -t kos .
 
 source:
 	source /opt/toolchains/dc/kos/environ.sh
@@ -30,7 +31,7 @@ run-cdi:
 	~/redream built-cdis/$(CDI)
 
 build: clean
-	cd src && $(MAKE)
+	docker run -ti -v $(shell pwd)/src:/src kos $(MAKE)
 	mv src/*.elf elfs/test.elf
 
 cdi: rm-cdi source
