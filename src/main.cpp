@@ -18,7 +18,7 @@
 using namespace std;
 
 // Initialize KOS
-KOS_INIT_FLAGS(INIT_DEFAULT);
+KOS_INIT_FLAGS(INIT_DEFAULT | INIT_MALLOCSTATS);
 
 // Initialize the ROM disk
 extern uint8 romdisk[];
@@ -701,7 +701,9 @@ void Cleanup()
 int main(int argc, char *argv[])
 {
   Initialize();
+  
   sndoggvorbis_start("/rd/music.ogg", 1);
+
   while (!exitProgram)
   {
     Update();
