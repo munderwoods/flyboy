@@ -2,6 +2,9 @@
 *.bin
 *.cdi
 *.img
+tools
+built-cdis
+elfs
 
 libs
 

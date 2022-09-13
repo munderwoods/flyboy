@@ -1,0 +1,11 @@
+FROM ubuntu:20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/Los_Angeles
+RUN apt update
+RUN apt-get install -y tzdata git gcc cmake build-essential pkg-config libisofs-dev ninja-build meson
+#RUN git clone --depth=1 https://github.com/mesonbuild/meson.git
+RUN git clone https://gitlab.com/simulant/mkdcdisc.git
+RUN ls mkdcdisc
+RUN cd mkdcdisc && meson setup build
+RUN cd mkdcdisc/build && meson install

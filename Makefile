@@ -1,7 +1,7 @@
 #
 # KallistiGL Direct Rendering test program
 # (c)2002 Dan Potter
-#   
+#
 
 SHELL := /bin/bash
 
@@ -13,8 +13,14 @@ CHEAT_ARG := $(shell source /opt/toolchains/dc/kos/environ.sh)
 
 all: build cdi run-cdi
 
-init:
-	docker build -t kos .
+init: #run this first
+	mkdir -p tools
+	mkdir -p elfs
+	mkdir -p build-cdis
+	docker build -f Dockerfile.kos -t kos .
+	docker build -f Dockerfile.extras -t dc-extras .
+	docker run -ti -v $(shell pwd):/cdi kos cp /opt/toolchains/dc/kos/utils/scramble/scramble /cdi/tools/
+	docker run -ti -v $(shell pwd):/cdi kos cp /opt/toolchains/dc/sh-elf/bin/sh-elf-objcopy /cdi/tools/
 
 source:
 	source /opt/toolchains/dc/kos/environ.sh
@@ -30,9 +36,12 @@ clean: rm-cdi rm-elf
 run-cdi:
 	~/redream built-cdis/$(CDI)
 
+docker-bash:
+	docker run -ti -v $(shell pwd)/src:/src kos $(SHELL)
+
 build: clean
 	docker run -ti -v $(shell pwd)/src:/src kos $(MAKE)
 	mv src/*.elf elfs/test.elf
 
 cdi: rm-cdi source
-	/opt/toolchains/dc/kos/utils/mkdcdisc -d src/ -e elfs/test.elf -o built-cdis/$(CDI) -s /opt/toolchains/dc/kos/utils/scramble/scramble -N -O /opt/toolchains/dc/sh-elf/bin/sh-elf-objcopy
+	docker run -ti -v $(shell pwd):/cdi dc-extras mkdcdisc -d /cdi/src/ -e /cdi/elfs/test.elf -o /cdi/built-cdis/$(CDI) -s /cdi/tools/scramble -N -O /cdi/tools/sh-elf-objcopy
