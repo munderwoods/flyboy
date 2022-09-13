@@ -58,6 +58,8 @@ int score = 0;
 // dpad or joystick
 int inputMode = 0;
 
+int frame = 0;
+
 bool displayDebug = false;
 bool displayChecker = false;
 
@@ -560,6 +562,7 @@ void cycle_background_color()
 
 void Update()
 {
+  frame++;
   handle_input();
   handle_rings();
   cycle_background_color();
@@ -665,6 +668,10 @@ void Update()
 
   char *score_string = concat_char("Score: ", int_to_char(score));
   fnt->draw(10.0f, 60.0f, 10.0f, score_string);
+
+  if (frame < 200) {
+    fnt->draw(250.0f, 220.0f, 10.0f, "FLYBOY");
+  }
 
   if (displayChecker)
   {
