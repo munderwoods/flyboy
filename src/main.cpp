@@ -37,6 +37,8 @@ float playerPosX = 0.0f;
 pvr_ptr_t texMemory[6];
 pvr_poly_hdr_t texHeaders[6];
 
+sfxhnd_t ring_sound;
+
 // Lighting parameters
 float    ambientLight  = 0.3f;
 float    diffuseLight  = 0.7f;
@@ -276,6 +278,7 @@ void Initialize()
   plx_mat3d_init();
   snd_stream_init();
   sndoggvorbis_init();
+  ring_sound = snd_sfx_load("/rd/ring.wav");
 
   for (int a = 0; a < 5; ++a)
     for (int b = 0; b < 16; ++b)
@@ -379,7 +382,7 @@ void handle_rings()
     )
     {
       score++;
-      //sndoggvorbis_start("/rd/ring.ogg", 0);
+      snd_sfx_play(ring_sound, 254, 128);
       reset_ring(r, -3.0f + rings[r][2]);
     }
 
