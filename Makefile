@@ -21,6 +21,8 @@ init: #run this first
 	docker build -f Dockerfile.extras -t dc-extras .
 	docker run -ti -v $(shell pwd):/cdi kos cp /opt/toolchains/dc/kos/utils/scramble/scramble /cdi/tools/
 	docker run -ti -v $(shell pwd):/cdi kos cp /opt/toolchains/dc/sh-elf/bin/sh-elf-objcopy /cdi/tools/
+	wget -O ~/.local/bin/redream.tar.gz https://redream.io/download/redream.x86_64-linux-v1.5.0.tar.gz
+	cd ~/.local/bin && tar -xf redream.tar.gz
 
 source:
 	source /opt/toolchains/dc/kos/environ.sh
@@ -34,7 +36,7 @@ rm-elf:
 clean: rm-cdi rm-elf
 
 run-cdi:
-	~/redream built-cdis/$(CDI)
+	redream built-cdis/$(CDI)
 
 docker-bash:
 	docker run -ti -v $(shell pwd)/src:/src kos $(SHELL)
