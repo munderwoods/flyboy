@@ -361,35 +361,32 @@ void handle_rings()
 {
   for (int r = 0; r < 5; ++r)
   {
-    if (!displayDebug)
+    rings[r][2] += 0.1f;
+
+    // move all the rings forward every frame
+    for (int i = 0; i < 16; ++i) {
+      ring_pool[r][i][2] = ring_verts[i][2] + rings[r][2];
+    }
+
+    // detect collision with player
+    if(
+      0 < rings[r][2] + 0.5f &&
+      0 > rings[r][2] - 0.5f &&
+      playerPosX < rings[r][0] + 0.5f &&
+      playerPosX > rings[r][0] - 0.5f &&
+      playerPosY < rings[r][1] + 0.5f &&
+      playerPosY > rings[r][1] - 0.5f
+    )
     {
-      rings[r][2] += 0.1f;
+      score++;
+      //sndoggvorbis_start("/rd/ring.ogg", 0);
+      reset_ring(r, -3.0f + rings[r][2]);
+    }
 
-      // move all the rings forward every frame
-      for (int i = 0; i < 16; ++i) {
-        ring_pool[r][i][2] = ring_verts[i][2] + rings[r][2];
-      }
-
-      // detect collision with player
-      if(
-        0 < rings[r][2] + 0.5f &&
-        0 > rings[r][2] - 0.5f &&
-        playerPosX < rings[r][0] + 0.5f &&
-        playerPosX > rings[r][0] - 0.5f &&
-        playerPosY < rings[r][1] + 0.5f &&
-        playerPosY > rings[r][1] - 0.5f
-      )
-      {
-        score++;
-        sndoggvorbis_start("/rd/ring.ogg", 0);
-        reset_ring(r, -3.0f + rings[r][2]);
-      }
-
-      // reset for when palyer misses the ring
-      if (rings[r][2] > 3.0f)
-      {
-        reset_ring(r, 0.0f);
-      }
+    // reset for when palyer misses the ring
+    if (rings[r][2] > 3.0f)
+    {
+      reset_ring(r, 0.0f);
     }
 
     // set the vectors for the rings to match their vertex arrays (wtf am I doing)
@@ -704,7 +701,9 @@ void Cleanup()
 int main(int argc, char *argv[])
 {
   Initialize();
-  sndoggvorbis_start("/rd/music3.ogg", 1);
+  
+  sndoggvorbis_start("/rd/music.ogg", 1);
+
   while (!exitProgram)
   {
     Update();
