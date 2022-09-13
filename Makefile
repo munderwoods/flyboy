@@ -16,7 +16,7 @@ all: build cdi run-cdi
 init: #run this first
 	mkdir -p tools
 	mkdir -p elfs
-	mkdir -p build-cdis
+	mkdir -p built-cdis
 	docker build -f Dockerfile.kos -t kos .
 	docker build -f Dockerfile.extras -t dc-extras .
 	docker run -ti -v $(shell pwd):/cdi kos cp /opt/toolchains/dc/kos/utils/scramble/scramble /cdi/tools/
