@@ -9,6 +9,7 @@ git clone https://github.com/munderwoods/flyboy.git
 cd flyboy
 make init
 make
+
 ```
 
 The resulting test.cdi in the built-cdis directory will play on a Dreamcast like normal.
