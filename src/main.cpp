@@ -13,7 +13,7 @@
 #include <png/png.h>
 #include <oggvorbis/sndoggvorbis.h>
 
-#include "lrrsoft.h"
+#include "vmu_logo.h"
 
 using namespace std;
 
@@ -274,7 +274,7 @@ void Initialize()
 {
   // Draw to the VMU
   maple_device_t *vmu = maple_enum_type(0, MAPLE_FUNC_LCD);
-  vmu_draw_lcd(vmu, lrrsoft_logo);
+  vmu_draw_lcd(vmu, vmu_logo);
   // Initialize the graphics and sound libraries
   pvr_init_defaults();
   plx_mat3d_init();
