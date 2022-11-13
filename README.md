@@ -1,6 +1,6 @@
 # flyboy
 
-![](https://www.theunderwoodfamily.net/public/flyboy.gif)
+![](https://github.com/munderwoods/flyboy/blob/main/flyboy.gif)
 
 A simple Dreamcast game build for learning purposes only. It is complete, however, it has no difficulty curve.
 
