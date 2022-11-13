@@ -1,5 +1,7 @@
 # flyboy
 
+![](https://www.theunderwoodfamily.net/public/flyboy.gif)
+
 A simple Dreamcast game build for learning purposes only. It is complete, however, it has no difficulty curve.
 
 Just needs docker to run and develop for from start to finish, but redream will only automatically install on linux. You'll have to figure out your own emulator or get it in a real Dreamcast otherwise.
