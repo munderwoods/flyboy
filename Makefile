@@ -41,7 +41,7 @@ build: clean
 	docker run -ti -v $(shell pwd)/src:/src kos $(MAKE)
 	mv src/*.elf elfs/flyboy.elf
 
-cdi: rm-cdi source
+cdi: rm-cdi
 	docker run -ti -v $(shell pwd):/cdi dc-extras mkdcdisc -d /cdi/src/ -e /cdi/elfs/flyboy.elf -o /cdi/built-cdis/$(CDI) -s /cdi/tools/scramble -N -O /cdi/tools/sh-elf-objcopy
 
 build-local: clean
